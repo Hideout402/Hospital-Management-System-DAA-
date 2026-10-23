@@ -1167,5 +1167,91 @@
   }
 }
 
+.settings-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.settings-heading {
+  margin-bottom: 24px;
+}
+
+.settings-heading h1 {
+  margin-bottom: 6px;
+  font-size: 28px;
+}
+
+.settings-heading p,
+.settings-card p {
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+.settings-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+.settings-card h2 {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.settings-card label {
+  display: block;
+  margin: 16px 0 8px;
+  font-weight: 500;
+}
+
+.settings-card input:not([type="checkbox"]) {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  outline-color: #166534;
+}
+
+.settings-notifications {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.settings-notifications h2 {
+  margin-bottom: 6px;
+}
+
+.settings-notifications input {
+  width: 18px;
+  height: 18px;
+  accent-color: #166534;
+}
+
+.settings-save-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  background: #166534;
+  color: white;
+  border: none;
+  border-radius: 7px;
+}
+
+.settings-save-button:hover {
+  background: #14532d;
+}
+
+.settings-success {
+  color: #166534;
+  margin-top: 14px;
+}
+
+
 
 
