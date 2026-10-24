@@ -4,7 +4,7 @@ import MainLayout from './layouts/MainLayout';
 import DashboardPage from './pages/DashboardPage';
 import PatientPage from './pages/PatientPage';
 import BillingPage from './pages/BillingPage';
-
+import SettingsPage from './pages/SettingsPage';
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <section className="placeholder-page">
@@ -25,7 +25,7 @@ export default function App() {
           <Route path="/appointments" element={<PlaceholderPage title="Appointments" />} />
           <Route path="/emergency" element={<PlaceholderPage title="Emergency" />} />
           <Route path="/billing" element={<BillingPage />} />
-          <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
