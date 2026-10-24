@@ -6,6 +6,7 @@ import {
   Stethoscope,
   CalendarDays,
   Siren,
+  Navigation,
   Receipt,
   Hospital,
   Settings,
@@ -17,6 +18,7 @@ const navigationItems = [
   { label: 'Doctors & Departments', path: '/doctors', icon: Stethoscope },
   { label: 'Appointments', path: '/appointments', icon: CalendarDays },
   { label: 'Emergency', path: '/emergency', icon: Siren },
+  { label: 'Navigation', path: '/navigation', icon: Navigation },
   { label: 'Billing', path: '/billing', icon: Receipt },
 ];
 
