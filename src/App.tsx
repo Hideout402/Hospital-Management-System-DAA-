@@ -5,6 +5,7 @@ import DashboardPage from './pages/DashboardPage';
 import PatientPage from './pages/PatientPage';
 import BillingPage from './pages/BillingPage';
 import SettingsPage from './pages/SettingsPage';
+import EmergencyPage from './pages/EmergencyPage';
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <section className="placeholder-page">
@@ -23,7 +24,7 @@ export default function App() {
           <Route path="/patients" element={<PatientPage  />} />
           <Route path="/doctors" element={<PlaceholderPage title="Doctors & Departments" />} />
           <Route path="/appointments" element={<PlaceholderPage title="Appointments" />} />
-          <Route path="/emergency" element={<PlaceholderPage title="Emergency" />} />
+          <Route path="/emergency" element={<EmergencyPage />} />
           <Route path="/billing" element={<BillingPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
