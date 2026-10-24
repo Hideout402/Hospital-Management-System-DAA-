@@ -1,4 +1,10 @@
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
   color: #1f2937;
@@ -47,4 +53,59 @@ h3,
 h4,
 p {
   margin-top: 0;
+}
+
+/* Appointment page styles */
+.font-display {
+  font-family: 'Manrope', sans-serif;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: #f4f8f7;
+}
+
+.sidebar {
+  background: #12483f;
+}
+
+.soft-shadow {
+  box-shadow: 0 8px 28px rgba(24, 68, 60, 0.07);
+}
+
+.table-row:hover {
+  background: #f7fbfa;
+}
+
+.fade-in {
+  animation: fade-in .25s ease-out;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid #dce6e3;
+  border-radius: 8px;
+  background: #fff;
+  padding: 11px 12px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #38534e;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: #4f9a87;
+  box-shadow: 0 0 0 3px rgba(79, 154, 135, 0.1);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
