@@ -46,7 +46,11 @@ export default function MainLayout() {
 
   return (
     <div className="app-layout">
-      <div className={mobileMenuOpen ? 'sidebar-wrapper mobile-open' : 'sidebar-wrapper'}>
+      <div
+        className={`sidebar-wrapper sticky top-0 h-screen shrink-0 self-start z-40 overflow-y-auto ${
+          mobileMenuOpen ? 'mobile-open' : ''
+        }`}
+      >
         <Sidebar />
       </div>
 

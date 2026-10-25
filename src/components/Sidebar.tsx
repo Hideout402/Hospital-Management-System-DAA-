@@ -24,7 +24,7 @@ const navigationItems = [
 
 export default function Sidebar() {
   return (
-    <aside className="app-sidebar">
+    <aside className="app-sidebar h-full min-h-screen">
       <div className="sidebar-brand">
         <div className="sidebar-logo">
           <Hospital size={25} />

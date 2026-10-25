@@ -1,5 +1,5 @@
 
-import { Bell, Search } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 interface HeaderProps {
   title: string;
@@ -15,14 +15,6 @@ export default function Header({ title, subtitle }: HeaderProps) {
       </div>
 
       <div className="header-actions">
-        <label className="header-search">
-          <Search size={18} />
-          <input
-            type="search"
-            placeholder="Search..."
-            aria-label="Search"
-          />
-        </label>
 
         <button
           type="button"

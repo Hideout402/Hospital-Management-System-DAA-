@@ -8,15 +8,8 @@ import SettingsPage from './pages/SettingsPage';
 import EmergencyPage from './pages/EmergencyPage';
 import NavigationPage from './pages/NavigationPage';
 import AppointmentsPageEntry from './pages/AppointmentsPage';
+import DoctorDirectory from './pages/DoctorDirectory';
 
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <section className="placeholder-page">
-      <h2>{title}</h2>
-      <p>This module will be developed by the assigned team member.</p>
-    </section>
-  );
-}
 
 export default function App() {
   return (
@@ -25,7 +18,7 @@ export default function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/patients" element={<PatientPage />} />
-          <Route path="/doctors" element={<PlaceholderPage title="Doctors & Departments" />} />
+          <Route path="/doctors" element={<DoctorDirectory />} />
           <Route path="/appointments/*" element={<AppointmentsPageEntry />} />
           <Route path="/emergency" element={<EmergencyPage />} />
           <Route path="/navigation" element={<NavigationPage />} />
