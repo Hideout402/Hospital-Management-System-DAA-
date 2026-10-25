@@ -32,6 +32,7 @@ export function AppointmentProvider({ children }: { children: ReactNode }) {
   return <AppointmentContext.Provider value={value}>{children}</AppointmentContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAppointments() {
   const context = useContext(AppointmentContext);
   if (!context) throw new Error('useAppointments must be used inside AppointmentProvider');

@@ -784,15 +784,21 @@
 }
 
 .sidebar-wrapper {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  max-height: 100vh;
   flex: 0 0 260px;
   width: 260px;
-  min-height: 100vh;
+  align-self: flex-start;
+  overflow-y: auto;
+  z-index: 40;
   background: #173f35;
 }
 
 .sidebar-wrapper .app-sidebar {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
 }
 
 .app-main {
@@ -818,6 +824,12 @@
 
   .sidebar-wrapper.mobile-open {
     display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    z-index: 50;
   }
 
   .app-main {
