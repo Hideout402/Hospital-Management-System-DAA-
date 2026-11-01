@@ -1,17 +1,19 @@
 
 export type Patient = {
-  id: string;
+  id: number;
   name: string;
   age: number;
   gender: string;
   phone: string;
   department: string;
   status: 'Active' | 'Discharged';
+  address?: string;
+  visitHistory?: string[];
 };
 
 export const initialPatients: Patient[] = [
   {
-    id: 'PAT-1001',
+    id: 1001,
     name: 'Ayesha Khan',
     age: 28,
     gender: 'Female',
@@ -20,7 +22,7 @@ export const initialPatients: Patient[] = [
     status: 'Active',
   },
   {
-    id: 'PAT-1002',
+    id: 1002,
     name: 'Hamza Malik',
     age: 42,
     gender: 'Male',
@@ -29,7 +31,7 @@ export const initialPatients: Patient[] = [
     status: 'Active',
   },
   {
-    id: 'PAT-1003',
+    id: 1003,
     name: 'Fatima Iqbal',
     age: 35,
     gender: 'Female',
@@ -38,7 +40,7 @@ export const initialPatients: Patient[] = [
     status: 'Discharged',
   },
   {
-    id: 'PAT-1004',
+    id: 1004,
     name: 'Ali Raza',
     age: 51,
     gender: 'Male',
@@ -47,7 +49,7 @@ export const initialPatients: Patient[] = [
     status: 'Active',
   },
   {
-    id: 'PAT-1005',
+    id: 1005,
     name: 'Hira Ahmed',
     age: 23,
     gender: 'Female',

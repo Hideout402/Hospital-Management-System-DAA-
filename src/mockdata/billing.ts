@@ -1,54 +1,54 @@
+export type BillStatus = 'Unpaid' | 'Partially Paid' | 'Paid';
 
-export type BillStatus = 'Paid' | 'Pending';
+export type BillLineItem = {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  amount: number;
+};
 
 export type Bill = {
-  id: string;
-  patientId: string;
+  id: number;
+  patientId: number;
   patientName: string;
-  date: string;
-  amount: number;
+  lineItems: BillLineItem[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  paidAmount: number;
+  balance: number;
   status: BillStatus;
 };
 
 export const initialBills: Bill[] = [
   {
-    id: 'BILL-1001',
-    patientId: 'PAT-1001',
+    id: 1,
+    patientId: 1001,
     patientName: 'Ayesha Khan',
-    date: '2026-10-20',
-    amount: 8500,
-    status: 'Paid',
+    lineItems: [
+      { description: 'Consultation', quantity: 1, unitPrice: 2500, amount: 2500 },
+      { description: 'Diagnostic Lab', quantity: 1, unitPrice: 1200, amount: 1200 },
+    ],
+    subtotal: 3700,
+    discount: 300,
+    total: 3400,
+    paidAmount: 2500,
+    balance: 900,
+    status: 'Partially Paid',
   },
   {
-    id: 'BILL-1002',
-    patientId: 'PAT-1002',
+    id: 2,
+    patientId: 1002,
     patientName: 'Hamza Malik',
-    date: '2026-10-21',
-    amount: 12000,
-    status: 'Pending',
-  },
-  {
-    id: 'BILL-1003',
-    patientId: 'PAT-1003',
-    patientName: 'Fatima Iqbal',
-    date: '2026-10-21',
-    amount: 6500,
-    status: 'Paid',
-  },
-  {
-    id: 'BILL-1004',
-    patientId: 'PAT-1004',
-    patientName: 'Ali Raza',
-    date: '2026-10-22',
-    amount: 15000,
-    status: 'Pending',
-  },
-  {
-    id: 'BILL-1005',
-    patientId: 'PAT-1005',
-    patientName: 'Hira Ahmed',
-    date: '2026-10-22',
-    amount: 4500,
+    lineItems: [
+      { description: 'Neurology Consultation', quantity: 1, unitPrice: 3200, amount: 3200 },
+      { description: 'MRI Scan', quantity: 1, unitPrice: 5600, amount: 5600 },
+    ],
+    subtotal: 8800,
+    discount: 500,
+    total: 8300,
+    paidAmount: 8300,
+    balance: 0,
     status: 'Paid',
   },
 ];

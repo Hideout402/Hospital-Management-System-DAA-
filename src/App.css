@@ -1843,7 +1843,9 @@
   background: #e8f3ec;
 }
 
-.billing-status.pending {
+.billing-status.pending,
+.billing-status.unpaid,
+.billing-status.partially-paid {
   color: #92400e;
   background: #fff4df;
 }
