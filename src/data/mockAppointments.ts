@@ -1,6 +1,35 @@
-import type { Appointment, Doctor, Patient } from '@/types/appointments';
+interface LegacyPatient {
+  id: string;
+  name: string;
+  age: number;
+  phone: string;
+  gender: string;
+}
 
-export const patients: Patient[] = [
+interface LegacyDoctor {
+  id: string;
+  name: string;
+  specialty: string;
+  department: string;
+  room: string;
+  fee: number;
+  color: string;
+}
+
+interface LegacyAppointment {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: 'Consultation' | 'Follow-up' | 'Routine check-up';
+  reason: string;
+  notes: string;
+  status: 'Scheduled' | 'Completed' | 'Cancelled';
+}
+
+export const patients: LegacyPatient[] = [
   { id: 'PT-10482', name: 'Olivia Bennett', age: 34, phone: '+1 (555) 014-2841', gender: 'Female' },
   { id: 'PT-10483', name: 'James Wilson', age: 58, phone: '+1 (555) 014-9210', gender: 'Male' },
   { id: 'PT-10484', name: 'Sophia Martinez', age: 27, phone: '+1 (555) 014-7314', gender: 'Female' },
@@ -9,14 +38,14 @@ export const patients: Patient[] = [
   { id: 'PT-10487', name: 'Noah Davis', age: 23, phone: '+1 (555) 014-5207', gender: 'Male' },
 ];
 
-export const doctors: Doctor[] = [
+export const doctors: LegacyDoctor[] = [
   { id: 'DR-201', name: 'Dr. Sarah Johnson', specialty: 'Cardiologist', department: 'Cardiology', room: 'Room 204', fee: 180, color: '#3f8f7b' },
   { id: 'DR-202', name: 'Dr. Michael Chen', specialty: 'Neurologist', department: 'Neurology', room: 'Room 118', fee: 220, color: '#4f7fc4' },
   { id: 'DR-203', name: 'Dr. Emily Davis', specialty: 'Dermatologist', department: 'Dermatology', room: 'Room 307', fee: 150, color: '#c38255' },
   { id: 'DR-204', name: 'Dr. Robert Williams', specialty: 'General Physician', department: 'Primary Care', room: 'Room 102', fee: 120, color: '#8272ae' },
 ];
 
-export const initialAppointments: Appointment[] = [
+export const initialAppointments: LegacyAppointment[] = [
   { id: 'APT-2026-001', patientId: 'PT-10482', doctorId: 'DR-201', date: '2026-10-24', time: '09:30', duration: 30, type: 'Consultation', reason: 'Routine heart check-up', notes: 'Bring previous ECG report.', status: 'Scheduled' },
   { id: 'APT-2026-002', patientId: 'PT-10483', doctorId: 'DR-202', date: '2026-10-24', time: '10:00', duration: 45, type: 'Follow-up', reason: 'Review MRI results', notes: '', status: 'Scheduled' },
   { id: 'APT-2026-003', patientId: 'PT-10484', doctorId: 'DR-203', date: '2026-10-24', time: '11:30', duration: 30, type: 'Consultation', reason: 'Skin irritation', notes: '', status: 'Completed' },

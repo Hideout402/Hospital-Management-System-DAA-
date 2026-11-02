@@ -11,6 +11,10 @@ struct Appointment {
     string date;
     string time;
     string status;
+    string type = "Consultation";
+    int duration = 30;
+    string reason;
+    string notes;
 };
 
 #endif

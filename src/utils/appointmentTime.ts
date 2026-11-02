@@ -14,7 +14,7 @@ export function timesOverlap(startTime: string, otherStartTime: string, duration
   return start < otherStart + otherDuration && otherStart < start + duration;
 }
 
-export function findDoctorConflict(appointments: Appointment[], doctorId: string, date: string, time: string, excludedId?: string): Appointment | undefined {
+export function findDoctorConflict(appointments: Appointment[], doctorId: number, date: string, time: string, excludedId?: number): Appointment | undefined {
   if (!doctorId || !date || !isValidAppointmentTime(time)) return undefined;
   return appointments.find((appointment) => appointment.id !== excludedId
     && appointment.doctorId === doctorId

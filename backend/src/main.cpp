@@ -29,6 +29,7 @@ int main()
     });
 
     registerPatientRoutes(server);
+    registerAppointmentRoutes(server);
     registerBillingRoutes(server);
 
     cout << "Hospital Management System Backend" << endl;

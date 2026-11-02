@@ -2,7 +2,7 @@ export type AppointmentStatus = 'Scheduled' | 'Completed' | 'Cancelled';
 export type AppointmentType = 'Consultation' | 'Follow-up' | 'Routine check-up';
 
 export interface Patient {
-  id: string;
+  id: number;
   name: string;
   age: number;
   phone: string;
@@ -10,19 +10,19 @@ export interface Patient {
 }
 
 export interface Doctor {
-  id: string;
+  id: number;
   name: string;
   specialty: string;
   department: string;
-  room: string;
+  room?: string;
   fee: number;
-  color: string;
+  color?: string;
 }
 
 export interface Appointment {
-  id: string;
-  patientId: string;
-  doctorId: string;
+  id: number;
+  patientId: number;
+  doctorId: number;
   date: string;
   time: string;
   duration: number;
@@ -33,12 +33,48 @@ export interface Appointment {
 }
 
 export interface AppointmentDraft {
-  patientId: string;
-  doctorId: string;
+  patientId: number;
+  doctorId: number;
   date: string;
   time: string;
   type: AppointmentType;
   reason: string;
   notes: string;
   status: AppointmentStatus;
+}
+
+export interface AppointmentOptions {
+  patients: Patient[];
+  doctors: Doctor[];
+}
+
+export type AppointmentSortAlgorithm = 'bubble' | 'merge' | 'quick';
+export type AppointmentSortField = 'dateTime' | 'id' | 'patientId' | 'doctorId' | 'status';
+
+export interface AppointmentSortResult {
+  algorithm: AppointmentSortAlgorithm;
+  by: AppointmentSortField;
+  order: 'asc' | 'desc';
+  appointments: Appointment[];
+}
+
+export interface AppointmentSearchResult {
+  found: boolean;
+  message: string;
+  appointment?: Appointment;
+}
+
+export interface AppointmentQueueState {
+  appointmentIds: number[];
+  front: number | null;
+  empty: boolean;
+  full?: boolean;
+  capacity?: number;
+}
+
+export interface AppointmentAction {
+  appointmentId: number;
+  action: string;
+  details: string;
+  timestamp: string;
 }
