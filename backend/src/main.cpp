@@ -28,7 +28,10 @@ int main()
         );
     });
 
+    // Register API module routes
     registerPatientRoutes(server);
+    registerDoctorRoutes(server);
+    registerDepartmentRoutes(server);
     registerAppointmentRoutes(server);
     registerBillingRoutes(server);
 

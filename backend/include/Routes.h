@@ -5,6 +5,7 @@
 
 void registerPatientRoutes(httplib::Server& server);
 void registerDoctorRoutes(httplib::Server& server);
+void registerDepartmentRoutes(httplib::Server& server);
 void registerAppointmentRoutes(httplib::Server& server);
 void registerBillingRoutes(httplib::Server& server);
 void registerEmergencyRoutes(httplib::Server& server);
