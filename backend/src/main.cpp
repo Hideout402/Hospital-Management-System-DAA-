@@ -34,6 +34,8 @@ int main()
     registerDepartmentRoutes(server);
     registerAppointmentRoutes(server);
     registerBillingRoutes(server);
+    registerEmergencyRoutes(server);
+    registerNavigationRoutes(server);
 
     cout << "Hospital Management System Backend" << endl;
     cout << "Server running at http://localhost:8080" << endl;

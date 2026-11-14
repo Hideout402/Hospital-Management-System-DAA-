@@ -1,8 +1,11 @@
 #ifndef NAVIGATIONSERVICE_H
 #define NAVIGATIONSERVICE_H
 
+#include <string>
+#include <vector>
 #include "../data/DataStore.h"
 #include "../dsa/Graph.h"
+using namespace std;
 
 class NavigationService
 {
@@ -12,56 +15,78 @@ public:
         return DataStore::getHospitalLocations();
     }
 
-    static vector<int> findRoute(int start, int destination)
+    static bool locationExists(int id)
+    {
+        for (const auto& l : DataStore::getHospitalLocations())
+        {
+            if (l.id == id)
+                return true;
+        }
+        return false;
+    }
+
+    static string getLocationName(int id)
+    {
+        for (const auto& l : DataStore::getHospitalLocations())
+        {
+            if (l.id == id)
+                return l.name;
+        }
+        return "Unknown location";
+    }
+
+    static Graph buildGraph()
     {
         auto& locations = DataStore::getHospitalLocations();
 
-        vector<int> route;
-        vector<int> parent(locations.size() + 1, -1);
-        vector<bool> visited(locations.size() + 1, false);
-        queue<int> q;
-
-        if (start < 1 || destination < 1 ||
-            start >= parent.size() || destination >= parent.size())
-            return route;
-
-        q.push(start);
-        visited[start] = true;
-
-        while (!q.empty())
+        int maxId = 0;
+        for (const auto& l : locations)
         {
-            int current = q.front();
-            q.pop();
+            if (l.id > maxId)
+                maxId = l.id;
+        }
 
-            if (current == destination)
-                break;
+        Graph graph(maxId + 1);
+        vector<vector<bool>> added(maxId + 1, vector<bool>(maxId + 1, false));
 
-            for (const auto& location : locations)
+        for (const auto& l : locations)
+        {
+            for (int next : l.connectedLocationIds)
             {
-                if (location.id == current)
-                {
-                    for (int next : location.connectedLocationIds)
-                    {
-                        if (next > 0 && next < parent.size() && !visited[next])
-                        {
-                            visited[next] = true;
-                            parent[next] = current;
-                            q.push(next);
-                        }
-                    }
-                }
+                if (next < 1 || next > maxId || next == l.id)
+                    continue;
+                if (!locationExists(next))
+                    continue;
+                if (added[l.id][next])
+                    continue;
+
+                graph.addEdge(l.id, next);
+                added[l.id][next] = true;
+                added[next][l.id] = true;
             }
         }
 
-        if (!visited[destination])
-            return route;
+        return graph;
+    }
 
-        for (int current = destination; current != -1; current = parent[current])
-            route.push_back(current);
+    // BFS: shortest route (fewest corridors). Empty vector = no route.
+    static vector<int> findRoute(int start, int destination)
+    {
+        if (!locationExists(start) || !locationExists(destination))
+            return vector<int>();
 
-        reverse(route.begin(), route.end());
+        Graph graph = buildGraph();
+        return graph.shortestPathBFS(start, destination);
+    }
 
-        return route;
+    // DFS: all locations reachable from start.
+    static vector<int> getReachable(int start)
+    {
+        if (!locationExists(start))
+            return vector<int>();
+
+        Graph graph = buildGraph();
+        return graph.DFSOrder(start);
     }
 };
 

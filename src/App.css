@@ -2194,6 +2194,10 @@
 .nav-node-active { fill: #1f4d3a; stroke: #1f4d3a; }
 .nav-label { font-size: 12px; fill: #374151; }
 
-
+/* ===== Shared API states (M4) ===== */
+.em-banner { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; margin-bottom: 16px; background: #fee2e2; color: #b91c1c; border-radius: 10px; font-size: 14px; }
+.em-loading { padding: 24px; text-align: center; color: #6b7280; }
+.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.nav-btn-light { background: #e8f1ec; color: #1f4d3a; }
 
 

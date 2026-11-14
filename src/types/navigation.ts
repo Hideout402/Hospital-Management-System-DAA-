@@ -1,11 +1,20 @@
-export interface LocationNode {
-  id: string
+export interface HospitalLocation {
+  id: number
   name: string
-  x: number
-  y: number
+  connectedLocationIds: number[]
 }
 
-export interface Corridor {
-  from: string
-  to: string
+export interface RouteResult {
+  from: number
+  to: number
+  corridors: number
+  path: number[]
+  pathNames: string[]
+}
+
+export interface ReachableResult {
+  from: number
+  count: number
+  order: number[]
+  orderNames: string[]
 }

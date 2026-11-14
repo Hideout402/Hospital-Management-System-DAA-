@@ -1,65 +1,100 @@
 import '../App.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigation } from 'lucide-react'
-import { locations, corridors } from '../mockdata/navigation'
-import type { Corridor } from '../types/navigation'
+import { navigationApi } from '../services/navigationApi'
+import { locationPositions } from '../mockdata/navigation'
+import type { HospitalLocation, RouteResult } from '../types/navigation'
 
-// BFS: finds the route with the fewest corridors. Time: O(V + E)
-function findRoute(start: string, end: string, edges: Corridor[]): string[] {
-  if (start === end) return [start]
+function edgeKey(a: number, b: number) {
+  return a < b ? `${a}-${b}` : `${b}-${a}`
+}
 
-  // Build adjacency list (corridors work in both directions)
-  const adj = new Map<string, string[]>()
-  edges.forEach(({ from, to }) => {
-    adj.set(from, [...(adj.get(from) ?? []), to])
-    adj.set(to, [...(adj.get(to) ?? []), from])
-  })
-
-  const visited = new Set<string>([start])
-  const parent = new Map<string, string>()
-  const queue: string[] = [start]
-
-  while (queue.length > 0) {
-    const current = queue.shift() as string
-    for (const next of adj.get(current) ?? []) {
-      if (!visited.has(next)) {
-        visited.add(next)
-        parent.set(next, current)
-        if (next === end) {
-          // Walk back through parents to build the path
-          const path = [end]
-          let node = end
-          while (node !== start) {
-            node = parent.get(node) as string
-            path.unshift(node)
-          }
-          return path
-        }
-        queue.push(next)
-      }
-    }
-  }
-  return [] // no route found
+function getPosition(id: number, index: number, total: number) {
+  const fixed = locationPositions[id]
+  if (fixed) return fixed
+  // Fallback for locations without a saved position: place on a circle
+  const angle = (index / total) * 2 * Math.PI
+  return { x: 300 + 220 * Math.cos(angle), y: 180 + 140 * Math.sin(angle) }
 }
 
 export default function NavigationPage() {
-  const [from, setFrom] = useState('entrance')
-  const [to, setTo] = useState('icu')
-  const [route, setRoute] = useState<string[]>([])
-  const [searched, setSearched] = useState(false)
+  const [locations, setLocations] = useState<HospitalLocation[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [from, setFrom] = useState(0)
+  const [to, setTo] = useState(0)
+  const [route, setRoute] = useState<RouteResult | null>(null)
+  const [routeError, setRouteError] = useState('')
+  const [reachable, setReachable] = useState<string[] | null>(null)
+  const [busy, setBusy] = useState(false)
 
-  const nameOf = (id: string) => locations.find((l) => l.id === id)?.name ?? id
-
-  function handleFind() {
-    setRoute(findRoute(from, to, corridors))
-    setSearched(true)
+  async function loadLocations() {
+    setLoading(true)
+    try {
+      const data = await navigationApi.getLocations()
+      setLocations(data)
+      if (data.length > 0) {
+        setFrom(data[0].id)
+        setTo(data[data.length - 1].id)
+      }
+      setError('')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load locations.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // Which corridors are part of the route (for highlighting)
-  const routeEdges = new Set<string>()
-  for (let i = 0; i < route.length - 1; i++) {
-    routeEdges.add(`${route[i]}|${route[i + 1]}`)
-    routeEdges.add(`${route[i + 1]}|${route[i]}`)
+  useEffect(() => {
+    loadLocations()
+  }, [])
+
+  async function handleFindRoute() {
+    setBusy(true)
+    setReachable(null)
+    try {
+      setRoute(await navigationApi.findRoute(from, to))
+      setRouteError('')
+    } catch (e) {
+      setRoute(null)
+      setRouteError(e instanceof Error ? e.message : 'Could not find a route.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleReachable() {
+    setBusy(true)
+    setRoute(null)
+    setRouteError('')
+    try {
+      const result = await navigationApi.getReachable(from)
+      setReachable(result.orderNames)
+    } catch (e) {
+      setReachable(null)
+      setRouteError(e instanceof Error ? e.message : 'Could not load reachable locations.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Corridors, each drawn once
+  const corridorKeys = new Set<string>()
+  locations.forEach((l) =>
+    l.connectedLocationIds.forEach((next) => corridorKeys.add(edgeKey(l.id, next))),
+  )
+
+  // Corridors that belong to the route
+  const routeKeys = new Set<string>()
+  if (route) {
+    for (let i = 0; i < route.path.length - 1; i++) {
+      routeKeys.add(edgeKey(route.path[i], route.path[i + 1]))
+    }
+  }
+
+  const positionOf = (id: number) => {
+    const index = locations.findIndex((l) => l.id === id)
+    return getPosition(id, index, locations.length)
   }
 
   return (
@@ -67,68 +102,93 @@ export default function NavigationPage() {
       <h2 className="nav-title"><Navigation size={22} /> Hospital Navigation</h2>
       <p className="nav-sub">Choose two locations to find the shortest route.</p>
 
-      <div className="nav-controls">
-        <label>
-          From
-          <select value={from} onChange={(e) => setFrom(e.target.value)}>
-            {locations.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          To
-          <select value={to} onChange={(e) => setTo(e.target.value)}>
-            {locations.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
-            ))}
-          </select>
-        </label>
-        <button className="nav-btn" onClick={handleFind}>Find route</button>
-      </div>
-
-      {searched && (
-        <div className="nav-result">
-          {route.length === 0 ? (
-            <span>No route found between these locations.</span>
-          ) : (
-            <span>
-              <strong>Route ({route.length - 1} corridor{route.length - 1 === 1 ? '' : 's'}):</strong>{' '}
-              {route.map(nameOf).join('  →  ')}
-            </span>
-          )}
+      {error && (
+        <div className="em-banner">
+          <span>{error}</span>
+          <button className="em-btn em-btn-small" onClick={loadLocations}>Retry</button>
         </div>
       )}
 
-      <svg className="nav-map" viewBox="0 0 600 360">
-        {corridors.map((c) => {
-          const a = locations.find((l) => l.id === c.from)
-          const b = locations.find((l) => l.id === c.to)
-          if (!a || !b) return null
-          const active = routeEdges.has(`${c.from}|${c.to}`)
-          return (
-            <line
-              key={`${c.from}-${c.to}`}
-              x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-              className={active ? 'nav-edge nav-edge-active' : 'nav-edge'}
-            />
-          )
-        })}
-        {locations.map((l) => {
-          const active = route.includes(l.id)
-          return (
-            <g key={l.id}>
-              <circle
-                cx={l.x} cy={l.y} r={18}
-                className={active ? 'nav-node nav-node-active' : 'nav-node'}
-              />
-              <text x={l.x} y={l.y + 34} textAnchor="middle" className="nav-label">
-                {l.name}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
+      {loading ? (
+        <p className="em-loading">Loading hospital map...</p>
+      ) : locations.length === 0 ? (
+        <p className="em-empty">No hospital locations available.</p>
+      ) : (
+        <>
+          <div className="nav-controls">
+            <label>
+              From
+              <select value={from} onChange={(e) => setFrom(Number(e.target.value))}>
+                {locations.map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              To
+              <select value={to} onChange={(e) => setTo(Number(e.target.value))}>
+                {locations.map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+            </label>
+            <button className="nav-btn" disabled={busy} onClick={handleFindRoute}>
+              Find route
+            </button>
+            <button className="nav-btn nav-btn-light" disabled={busy} onClick={handleReachable}>
+              Show reachable (DFS)
+            </button>
+          </div>
+
+          {routeError && <div className="em-banner"><span>{routeError}</span></div>}
+
+          {route && (
+            <div className="nav-result">
+              <strong>
+                Route ({route.corridors} corridor{route.corridors === 1 ? '' : 's'}):
+              </strong>{' '}
+              {route.pathNames.join('  →  ')}
+            </div>
+          )}
+
+          {reachable && (
+            <div className="nav-result">
+              <strong>Reachable from {locations.find((l) => l.id === from)?.name} (DFS order):</strong>{' '}
+              {reachable.join('  →  ')}
+            </div>
+          )}
+
+          <svg className="nav-map" viewBox="0 0 600 360">
+            {[...corridorKeys].map((key) => {
+              const [a, b] = key.split('-').map(Number)
+              const pa = positionOf(a)
+              const pb = positionOf(b)
+              return (
+                <line
+                  key={key}
+                  x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y}
+                  className={routeKeys.has(key) ? 'nav-edge nav-edge-active' : 'nav-edge'}
+                />
+              )
+            })}
+            {locations.map((l) => {
+              const p = positionOf(l.id)
+              const active = route ? route.path.includes(l.id) : false
+              return (
+                <g key={l.id}>
+                  <circle
+                    cx={p.x} cy={p.y} r={18}
+                    className={active ? 'nav-node nav-node-active' : 'nav-node'}
+                  />
+                  <text x={p.x} y={p.y + 34} textAnchor="middle" className="nav-label">
+                    {l.name}
+                  </text>
+                </g>
+              )
+            })}
+          </svg>
+        </>
+      )}
     </section>
   )
 }

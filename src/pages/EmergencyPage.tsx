@@ -1,10 +1,10 @@
 import '../App.css'
-import { useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Siren, Plus } from 'lucide-react'
-import { initialEmergencyCases } from '../mockdata/emergency'
-import type { EmergencyCase } from '../types/emergency'
+import { emergencyApi } from '../services/emergencyApi'
+import type { EmergencyCase, PatientOption } from '../types/emergency'
 
-const priorityLabels: Record<number, string> = {
+const triageLabels: Record<number, string> = {
   1: 'Critical',
   2: 'Emergent',
   3: 'Urgent',
@@ -12,58 +12,76 @@ const priorityLabels: Record<number, string> = {
   5: 'Non-urgent',
 }
 
-const emptyForm = { patientName: '', condition: '', priority: '3' }
+const emptyForm = { patientId: '', triageLevel: '3', notes: '' }
 
 export default function EmergencyPage() {
-  const [cases, setCases] = useState<EmergencyCase[]>(initialEmergencyCases)
+  const [cases, setCases] = useState<EmergencyCase[]>([])
+  const [patients, setPatients] = useState<PatientOption[]>([])
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ ...emptyForm })
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
 
-  // Sort: finished cases last, then by priority, then by arrival time
-  const sortedCases = useMemo(() => {
-    return [...cases].sort((a, b) => {
-      const aDone = a.status === 'Done' ? 1 : 0
-      const bDone = b.status === 'Done' ? 1 : 0
-      return (
-        aDone - bDone ||
-        a.priority - b.priority ||
-        a.arrivalTime.localeCompare(b.arrivalTime)
-      )
-    })
-  }, [cases])
+  const loadCases = useCallback(async () => {
+    try {
+      setCases(await emergencyApi.getAll())
+      setError('')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load emergency cases.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
-  const waitingCount = cases.filter((c) => c.status === 'Waiting').length
-  const nextCase = sortedCases.find((c) => c.status === 'Waiting')
+  useEffect(() => {
+    loadCases()
+    emergencyApi.getPatients().then(setPatients).catch(() => setPatients([]))
+  }, [loadCases])
 
-  function handleAdd(e: FormEvent) {
+  async function runAction(action: () => Promise<unknown>) {
+    setBusy(true)
+    try {
+      await action()
+      await loadCases()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Request failed.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleAdd(e: FormEvent) {
     e.preventDefault()
-    if (!form.patientName.trim() || !form.condition.trim()) {
-      setError('Patient name and condition are required.')
+    if (!form.patientId) {
+      setFormError('Please choose a patient.')
       return
     }
-    const newCase: EmergencyCase = {
-      id: `EM-${Date.now().toString().slice(-5)}`,
-      patientName: form.patientName.trim(),
-      condition: form.condition.trim(),
-      priority: Number(form.priority) as EmergencyCase['priority'],
-      arrivalTime: new Date().toTimeString().slice(0, 5),
-      status: 'Waiting',
+    if (!form.notes.trim()) {
+      setFormError('Please describe the condition.')
+      return
     }
-    setCases([...cases, newCase])
-    setForm({ ...emptyForm })
-    setError('')
-    setShowForm(false)
+
+    setBusy(true)
+    try {
+      await emergencyApi.create({
+        patientId: Number(form.patientId),
+        triageLevel: Number(form.triageLevel),
+        notes: form.notes.trim(),
+      })
+      await loadCases()
+      setForm({ ...emptyForm })
+      setFormError('')
+      setShowForm(false)
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Could not add the case.')
+    } finally {
+      setBusy(false)
+    }
   }
 
-  function treatNext() {
-    if (!nextCase) return
-    setCases(cases.map((c) => (c.id === nextCase.id ? { ...c, status: 'In Treatment' } : c)))
-  }
-
-  function markDone(id: string) {
-    setCases(cases.map((c) => (c.id === id ? { ...c, status: 'Done' } : c)))
-  }
+  const waitingCount = cases.filter((c) => c.status === 'Waiting').length
 
   return (
     <section className="em-page">
@@ -71,11 +89,15 @@ export default function EmergencyPage() {
         <div>
           <h2 className="em-title"><Siren size={22} /> Emergency Queue</h2>
           <p className="em-sub">
-            {waitingCount} waiting. Most critical patient is shown first.
+            {waitingCount} waiting. The most critical patient is shown first.
           </p>
         </div>
         <div className="em-actions">
-          <button className="em-btn em-btn-light" onClick={treatNext} disabled={!nextCase}>
+          <button
+            className="em-btn em-btn-light"
+            disabled={busy || waitingCount === 0}
+            onClick={() => runAction(() => emergencyApi.treatNext())}
+          >
             Treat next patient
           </button>
           <button className="em-btn" onClick={() => setShowForm(!showForm)}>
@@ -84,58 +106,76 @@ export default function EmergencyPage() {
         </div>
       </div>
 
+      {error && (
+        <div className="em-banner">
+          <span>{error}</span>
+          <button className="em-btn em-btn-small" onClick={loadCases}>Retry</button>
+        </div>
+      )}
+
       {showForm && (
         <form className="em-form" onSubmit={handleAdd}>
-          <input
-            placeholder="Patient name"
-            value={form.patientName}
-            onChange={(e) => setForm({ ...form, patientName: e.target.value })}
-          />
-          <input
-            placeholder="Condition"
-            value={form.condition}
-            onChange={(e) => setForm({ ...form, condition: e.target.value })}
-          />
           <select
-            value={form.priority}
-            onChange={(e) => setForm({ ...form, priority: e.target.value })}
+            value={form.patientId}
+            onChange={(e) => setForm({ ...form, patientId: e.target.value })}
           >
-            {[1, 2, 3, 4, 5].map((p) => (
-              <option key={p} value={p}>{p} - {priorityLabels[p]}</option>
+            <option value="">Select patient</option>
+            {patients.map((p) => (
+              <option key={p.id} value={p.id}>{p.id} - {p.name}</option>
             ))}
           </select>
-          <button className="em-btn" type="submit">Save</button>
-          {error && <p className="em-error">{error}</p>}
+          <select
+            value={form.triageLevel}
+            onChange={(e) => setForm({ ...form, triageLevel: e.target.value })}
+          >
+            {[1, 2, 3, 4, 5].map((level) => (
+              <option key={level} value={level}>{level} - {triageLabels[level]}</option>
+            ))}
+          </select>
+          <input
+            placeholder="Condition / notes"
+            value={form.notes}
+            onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          />
+          <button className="em-btn" type="submit" disabled={busy}>Save</button>
+          {formError && <p className="em-error">{formError}</p>}
         </form>
       )}
 
-      {sortedCases.length === 0 ? (
+      {loading ? (
+        <p className="em-loading">Loading emergency cases...</p>
+      ) : cases.length === 0 ? (
         <p className="em-empty">No emergency cases right now.</p>
       ) : (
         <table className="em-table">
           <thead>
             <tr>
-              <th>ID</th><th>Patient</th><th>Condition</th>
-              <th>Priority</th><th>Arrival</th><th>Status</th><th></th>
+              <th>#</th><th>Patient</th><th>Condition</th>
+              <th>Triage</th><th>Status</th><th></th>
             </tr>
           </thead>
           <tbody>
-            {sortedCases.map((c) => (
+            {cases.map((c) => (
               <tr key={c.id}>
-                <td>{c.id}</td>
+                <td>{c.arrivalOrder}</td>
                 <td>{c.patientName}</td>
-                <td>{c.condition}</td>
+                <td>{c.notes}</td>
                 <td>
-                  <span className={`em-badge em-p${c.priority}`}>
-                    {c.priority} - {priorityLabels[c.priority]}
+                  <span className={`em-badge em-p${c.triageLevel}`}>
+                    {c.triageLevel} - {triageLabels[c.triageLevel] ?? 'Unknown'}
                   </span>
                 </td>
-                <td>{c.arrivalTime}</td>
                 <td>{c.status}</td>
                 <td>
                   {c.status === 'In Treatment' && (
-                    <button className="em-btn em-btn-small" onClick={() => markDone(c.id)}>
-                      Mark done
+                    <button
+                      className="em-btn em-btn-small"
+                      disabled={busy}
+                      onClick={() =>
+                        runAction(() => emergencyApi.updateStatus(c.id, 'Completed'))
+                      }
+                    >
+                      Mark completed
                     </button>
                   )}
                 </td>

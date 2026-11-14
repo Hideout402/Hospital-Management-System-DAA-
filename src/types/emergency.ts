@@ -1,10 +1,22 @@
-export type EmergencyStatus = 'Waiting' | 'In Treatment' | 'Done'
+export type EmergencyStatus = 'Waiting' | 'In Treatment' | 'Completed'
 
 export interface EmergencyCase {
-  id: string
+  id: number
+  patientId: number
   patientName: string
-  condition: string
-  priority: 1 | 2 | 3 | 4 | 5 // 1 = most critical
-  arrivalTime: string // 'HH:MM'
+  triageLevel: number // 1 = most critical, 5 = least urgent
+  arrivalOrder: number
   status: EmergencyStatus
+  notes: string
+}
+
+export interface EmergencyDraft {
+  patientId: number
+  triageLevel: number
+  notes: string
+}
+
+export interface PatientOption {
+  id: number
+  name: string
 }

@@ -125,15 +125,24 @@ inline vector<Bill> bills = {
      3050.0, 150.0, 2900.0, 2900.0, 0.0, "Paid"}
 };
 
+
 inline vector<EmergencyCase> emergencyCases = {
-    {1, 3, 1, 1, "Waiting", "Severe chest pain"},
-    {2, 2, 2, 2, "Waiting", "High fever"}
+    {1, 1004, 1, 1, "Waiting", "Severe chest pain"},
+    {2, 1001, 2, 2, "Waiting", "High fever"},
+    {3, 1002, 3, 3, "Waiting", "Fractured arm"},
+    {4, 1005, 3, 4, "Waiting", "Dizziness"},
+    {5, 1003, 5, 5, "Waiting", "Small cut"}
 };
 
 inline vector<HospitalLocation> hospitalLocations = {
-    {1, "Reception", {2, 3}},
-    {2, "Emergency Room", {1, 3}},
-    {3, "Cardiology", {1, 2}}
+    {1, "Reception", {2, 3, 4, 5}},
+    {2, "Emergency Room", {1, 3, 6}},
+    {3, "Cardiology", {1, 2, 7}},
+    {4, "Laboratory", {1, 6}},
+    {5, "Pharmacy", {1, 8}},
+    {6, "Radiology", {2, 4, 8}},
+    {7, "Ward A", {3, 8}},
+    {8, "ICU", {5, 6, 7}}
 };
 
 }
